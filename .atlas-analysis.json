@@ -1,0 +1,237 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "App Store Connect CLI",
+  "projectDescription": "Fast, scriptable CLI for the App Store Connect API to automate iOS, macOS, tvOS, and visionOS release workflows.",
+  "theme": "aspen",
+  "primaryColor": "#8c8c8d",
+  "lightColor": "#1c1c1c",
+  "darkColor": "#d7d7d8",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "authentication",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/output-formats",
+              "concepts/pagination",
+              "concepts/error-handling",
+              "concepts/workflows"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/testflight",
+              "guides/app-store-submission",
+              "guides/code-signing",
+              "guides/metadata-management",
+              "guides/analytics-reports",
+              "guides/screenshots",
+              "guides/automation"
+            ]
+          },
+          {
+            "group": "CI/CD Integration",
+            "pages": [
+              "cicd/overview",
+              "cicd/github-actions",
+              "cicd/gitlab-ci",
+              "cicd/bitrise",
+              "cicd/circleci"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/environment-variables",
+              "configuration/profiles",
+              "configuration/workflows"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Command Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "commands/overview",
+              "commands/global-flags"
+            ]
+          },
+          {
+            "group": "Authentication",
+            "pages": [
+              "commands/auth"
+            ]
+          },
+          {
+            "group": "App Management",
+            "pages": [
+              "commands/apps",
+              "commands/versions",
+              "commands/localizations",
+              "commands/app-info",
+              "commands/pricing",
+              "commands/categories"
+            ]
+          },
+          {
+            "group": "TestFlight & Builds",
+            "pages": [
+              "commands/testflight",
+              "commands/builds",
+              "commands/feedback",
+              "commands/crashes",
+              "commands/sandbox"
+            ]
+          },
+          {
+            "group": "Review & Release",
+            "pages": [
+              "commands/validate",
+              "commands/submit",
+              "commands/publish",
+              "commands/review",
+              "commands/reviews"
+            ]
+          },
+          {
+            "group": "Media",
+            "pages": [
+              "commands/screenshots",
+              "commands/video-previews"
+            ]
+          },
+          {
+            "group": "Code Signing",
+            "pages": [
+              "commands/signing",
+              "commands/certificates",
+              "commands/profiles",
+              "commands/bundle-ids"
+            ]
+          },
+          {
+            "group": "Analytics & Reports",
+            "pages": [
+              "commands/analytics",
+              "commands/insights",
+              "commands/finance",
+              "commands/performance"
+            ]
+          },
+          {
+            "group": "Monetization",
+            "pages": [
+              "commands/iap",
+              "commands/subscriptions",
+              "commands/app-events"
+            ]
+          },
+          {
+            "group": "Automation",
+            "pages": [
+              "commands/workflow",
+              "commands/webhooks",
+              "commands/xcode-cloud",
+              "commands/notify"
+            ]
+          },
+          {
+            "group": "Additional Commands",
+            "pages": [
+              "commands/users",
+              "commands/devices",
+              "commands/metadata",
+              "commands/migrate",
+              "commands/completion"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Resources",
+        "groups": [
+          {
+            "group": "Additional Resources",
+            "pages": [
+              "resources/troubleshooting",
+              "resources/faq",
+              "resources/api-notes",
+              "resources/contributing",
+              "resources/changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "TestFlight distribution and feedback management",
+    "App Store submission and review automation",
+    "Code signing certificate and profile management",
+    "Analytics and financial report downloads",
+    "Metadata and localization management",
+    "Screenshot and media asset handling",
+    "In-app purchase and subscription management",
+    "CI/CD pipeline integration",
+    "JSON-first output for scriptability",
+    "Multi-step workflow automation"
+  ],
+  "publicApiSurface": [
+    "asc auth login",
+    "asc apps list",
+    "asc builds upload",
+    "asc builds list",
+    "asc testflight builds list",
+    "asc feedback --app",
+    "asc crashes --app",
+    "asc validate --app --version",
+    "asc submit --app --version",
+    "asc publish",
+    "asc screenshots list",
+    "asc screenshots upload",
+    "asc video-previews list",
+    "asc localizations list",
+    "asc app-info get",
+    "asc certificates list",
+    "asc profiles list",
+    "asc bundle-ids list",
+    "asc analytics",
+    "asc insights",
+    "asc finance",
+    "asc performance",
+    "asc iap list",
+    "asc subscriptions list",
+    "asc app-events list",
+    "asc workflow run",
+    "asc webhooks list",
+    "asc xcode-cloud",
+    "asc users list",
+    "asc devices list",
+    "asc sandbox list",
+    "asc review",
+    "asc reviews list",
+    "asc metadata",
+    "asc migrate",
+    "asc notify",
+    "asc signing",
+    "asc versions list",
+    "asc pricing",
+    "asc categories",
+    "asc completion"
+  ]
+}
