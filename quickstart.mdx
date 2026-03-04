@@ -1,80 +1,432 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with the App Store Connect CLI in minutes
 ---
 
-## Get started in three steps
+This guide walks you through your first `asc` commands, from authentication to making your first API call.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before starting, make sure you have:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+- [x] Installed `asc` ([Installation guide](/installation))
+- [x] Generated App Store Connect API credentials ([Authentication guide](/authentication))
+- [x] A `.p8` private key file from App Store Connect
 
-### Step 2: Deploy your changes
+## Step 1: Authenticate
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+Store your API credentials using `asc auth login`:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+```bash
+asc auth login \
+  --name "MyApp" \
+  --key-id "ABC123DEFG" \
+  --issuer-id "12345678-abcd-1234-abcd-123456789012" \
+  --private-key ~/.asc/AuthKey_ABC123.p8
+```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+<Steps>
+  <Step title="Replace placeholders">
+    - `--name`: A friendly name for this key (e.g., "Personal", "WorkProject")
+    - `--key-id`: Your 10-character Key ID from App Store Connect
+    - `--issuer-id`: Your Issuer ID (UUID format)
+    - `--private-key`: Path to your `.p8` file
+  </Step>
+  <Step title="Verify storage">
+    ```bash
+    asc auth status
+    ```
 
-### Step 3: Go live
+    Expected output:
+    ```
+    Credential storage: System Keychain
+    Location: system keychain
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    Stored credentials:
+    Name    Key ID      Default  Stored In
+    MyApp   ABC123DEFG  yes      keychain
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  By default, credentials are stored in your system keychain (macOS Keychain, Windows Credential Manager, or Linux Secret Service). Use `--bypass-keychain` to store in a config file instead.
+</Note>
+
+## Step 2: List your apps
+
+Fetch all apps associated with your account:
+
+```bash
+asc apps list
+```
+
+Sample output (interactive terminal):
+
+```
+┌────────────┬──────────────┬─────────────────┬────────────────┐
+│ ID         │ Name         │ Bundle ID       │ SKU            │
+├────────────┼──────────────┼─────────────────┼────────────────┤
+│ 123456789  │ My Great App │ com.example.app │ MY_GREAT_APP_1 │
+│ 987654321  │ Another App  │ com.example.two │ ANOTHER_APP_2  │
+└────────────┴──────────────┴─────────────────┴────────────────┘
+```
+
+<Tip>
+  When piped or in CI, `asc` automatically outputs JSON. Try: `asc apps list | jq`
+</Tip>
+
+### Get JSON output explicitly
+
+```bash
+asc apps list --output json --pretty
+```
+
+Output:
+
+```json
+{
+  "data": [
+    {
+      "id": "123456789",
+      "type": "apps",
+      "attributes": {
+        "name": "My Great App",
+        "bundleId": "com.example.app",
+        "sku": "MY_GREAT_APP_1",
+        "primaryLocale": "en-US"
+      }
+    }
+  ]
+}
+```
+
+## Step 3: Explore a specific app
+
+Use the app ID from the previous step to get detailed information:
+
+```bash
+asc apps get --app "123456789" --output json --pretty
+```
+
+### Set a default app
+
+Avoid typing `--app` repeatedly:
+
+```bash
+export ASC_APP_ID="123456789"
+asc apps get  # Uses ASC_APP_ID automatically
+```
+
+Or add to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+echo 'export ASC_APP_ID="123456789"' >> ~/.zshrc
+```
+
+## Step 4: Fetch builds
+
+List recent builds for your app:
+
+```bash
+asc builds list --app "123456789" --sort -uploadedDate --limit 5
+```
+
+Sample output:
+
+```
+┌─────────────┬─────────┬──────────┬─────────────────────┬──────────────────┐
+│ ID          │ Version │ Build    │ Uploaded            │ Processing State │
+├─────────────┼─────────┼──────────┼─────────────────────┼──────────────────┤
+│ abc123      │ 1.2.3   │ 45       │ 2026-03-04 10:30:00 │ VALID            │
+│ def456      │ 1.2.2   │ 44       │ 2026-03-03 15:20:00 │ VALID            │
+│ ghi789      │ 1.2.1   │ 43       │ 2026-03-02 09:15:00 │ VALID            │
+└─────────────┴─────────┴──────────┴─────────────────────┴──────────────────┘
+```
+
+<Note>
+  Use `--paginate` to fetch all pages automatically: `asc builds list --app "123456789" --paginate`
+</Note>
+
+## Step 5: Check TestFlight feedback
+
+View feedback from beta testers:
+
+```bash
+asc feedback --app "123456789" --limit 10
+```
+
+### Fetch crash reports
+
+```bash
+asc crashes --app "123456789" --sort -createdDate --limit 5
+```
+
+## Common workflows
+
+### Upload a build to TestFlight
+
+```bash
+asc builds upload \
+  --app "123456789" \
+  --file "/path/to/MyApp.ipa"
+```
+
+<Warning>
+  Build uploads can take several minutes depending on file size and network speed. The CLI shows progress and waits for processing to complete.
+</Warning>
+
+### List TestFlight beta groups
+
+```bash
+asc testflight beta-groups list --app "123456789"
+```
+
+### Add a build to a beta group
+
+```bash
+asc builds add-groups \
+  --build "abc123" \
+  --group "def456"
+```
+
+### Validate an App Store version
+
+Before submitting for review:
+
+```bash
+asc validate --app "123456789" --version "1.2.3"
+```
+
+### Submit for App Store review
+
+```bash
+asc submit --app "123456789" --version "1.2.3"
+```
+
+<Note>
+  Use `--confirm` to skip confirmation prompts in scripts: `asc submit --app "123456789" --version "1.2.3" --confirm`
+</Note>
+
+## Explore commands
+
+`asc` is self-documenting. Use `--help` at any level:
+
+<CodeGroup>
+
+```bash List all commands
+asc --help
+```
+
+```bash Command group help
+asc builds --help
+```
+
+```bash Specific command help
+asc builds list --help
+```
+
+</CodeGroup>
+
+Sample `--help` output:
+
+```
+USAGE
+  asc builds list [flags]
+
+FLAGS
+  --app string           App ID (required)
+  --sort string          Sort results (e.g., -uploadedDate)
+  --limit int            Limit results (default: 20)
+  --paginate             Fetch all pages
+  --output string        Output format: table, json, markdown
+  --pretty               Pretty-print JSON output
+
+EXAMPLES
+  asc builds list --app "123456789"
+  asc builds list --app "123456789" --sort -uploadedDate --limit 10
+  asc builds list --app "123456789" --paginate --output json
+```
+
+## Output formats
+
+`asc` supports multiple output formats:
+
+<Tabs>
+  <Tab title="table (default in TTY)">
+    ```bash
+    asc apps list --output table
+    ```
+
+    Human-readable tabular output with borders.
+  </Tab>
+  <Tab title="json (default in pipes/CI)">
+    ```bash
+    asc apps list --output json
+    ```
+
+    Minified JSON for machine parsing.
+  </Tab>
+  <Tab title="json --pretty">
+    ```bash
+    asc apps list --output json --pretty
+    ```
+
+    Indented JSON for readability.
+  </Tab>
+  <Tab title="markdown">
+    ```bash
+    asc apps list --output markdown
+    ```
+
+    Markdown-formatted tables.
+  </Tab>
+</Tabs>
+
+### Set a global default
+
+```bash
+export ASC_DEFAULT_OUTPUT=json
+asc apps list  # Always outputs JSON
+```
+
+Explicit flags always override defaults:
+
+```bash
+ASC_DEFAULT_OUTPUT=json asc apps list --output table
+```
+
+## Scripting tips
+
+### Exit codes
+
+`asc` uses standard exit codes:
+
+- `0`: Success
+- `1`: Runtime error (API failure, network issue, etc.)
+- `2`: Usage error (invalid flags, missing arguments)
+
+```bash
+if asc apps list --app "123456789" > /dev/null 2>&1; then
+  echo "App found"
+else
+  echo "Error: $?"
+fi
+```
+
+### Parse JSON output with jq
+
+```bash
+# Extract app names
+asc apps list --output json | jq -r '.data[].attributes.name'
+
+# Filter by bundle ID
+asc apps list --output json | jq '.data[] | select(.attributes.bundleId == "com.example.app")'
+
+# Count builds
+asc builds list --app "123456789" --output json | jq '.data | length'
+```
+
+### Pagination
+
+Manual pagination:
+
+```bash
+# First page
+asc builds list --app "123456789" --limit 20
+
+# Next page (use the 'next' link from JSON output)
+asc builds list --app "123456789" --limit 20 --next "CURSOR_VALUE"
+```
+
+Automatic pagination:
+
+```bash
+asc builds list --app "123456789" --paginate
+```
+
+## Environment variables
+
+Common environment variables for convenience:
+
+```bash
+export ASC_APP_ID="123456789"              # Default app ID
+export ASC_DEFAULT_OUTPUT="json"           # Default output format
+export ASC_TIMEOUT="90s"                   # Request timeout
+export ASC_DEBUG="api"                     # Enable API debug logging
+```
+
+See [Environment Variables Reference](/reference/environment) for the complete list.
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Command reference" icon="book" href="/commands">
+    Browse all available commands and flags
+  </Card>
+  <Card title="CI/CD integration" icon="gear" href="/ci-cd">
+    Automate workflows in GitHub Actions, GitLab CI, and more
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/workflows">
+    Create multi-step automation with `asc workflow`
+  </Card>
+  <Card title="Examples" icon="code" href="/examples">
+    Real-world examples for common tasks
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command not found: asc">
+    Ensure `asc` is in your `PATH`:
+    ```bash
+    which asc
+    ```
+
+    If empty, add the installation directory to your shell profile:
+    ```bash
+    export PATH="$HOME/.local/bin:$PATH"
+    ```
+  </Accordion>
+
+  <Accordion title="Authentication failed">
+    Verify your credentials:
+    ```bash
+    asc auth status --validate
+    ```
+
+    Run the doctor to diagnose issues:
+    ```bash
+    asc auth doctor
+    ```
+  </Accordion>
+
+  <Accordion title="API rate limits">
+    App Store Connect enforces rate limits. If you hit them:
+    - Reduce request frequency
+    - Use `--limit` to fetch fewer results
+    - Cache API responses locally
+
+    The CLI automatically retries rate-limited requests with exponential backoff.
+  </Accordion>
+
+  <Accordion title="Network timeouts">
+    Increase the timeout for slow connections:
+    ```bash
+    export ASC_TIMEOUT="120s"
+    asc builds upload --app "123456789" --file large.ipa
+    ```
+
+    For uploads, use `ASC_UPLOAD_TIMEOUT`:
+    ```bash
+    export ASC_UPLOAD_TIMEOUT="300s"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Get help
+
+- **Built-in docs**: `asc --help` or `asc <command> --help`
+- **GitHub Issues**: [Report bugs or request features](https://github.com/rudrankriyam/App-Store-Connect-CLI/issues)
+- **Discussions**: [Ask questions and share workflows](https://github.com/rudrankriyam/App-Store-Connect-CLI/discussions)
